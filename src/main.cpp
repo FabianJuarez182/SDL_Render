@@ -165,14 +165,35 @@ int main() {
     bool running = true;
     SDL_Event event;
 
+    float angle = 0.0f; // Initial rotation angle
+
     while (running) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = false;
             }
         }
-    }
 
+        // Clear the framebuffer
+        SDL_SetRenderDrawColor(renderer, clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+        SDL_RenderClear(renderer);
+
+        // Update angle for rotation
+        angle += 0.01f; // Adjust rotation speed as needed
+
+        // Create rotation matrix around the Y-axis (0, 1, 0)
+        glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0.0f, 1.0f, 0.0f));
+
+        // Rotate and draw the model
+        std::vector<glm::vec3> rotatedVertexArray;
+        for (const auto& vertex : vertexArray) {
+            glm::vec4 rotatedVertex = rotationMatrix * glm::vec4(vertex, 1.0f);
+            rotatedVertexArray.push_back(glm::vec3(rotatedVertex));
+        }
+
+        drawModel(rotatedVertexArray);
+        SDL_RenderPresent(renderer);
+    }
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
